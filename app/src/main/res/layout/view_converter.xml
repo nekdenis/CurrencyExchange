@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/converter_view_height">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        tools:background="#80a0ea">
+
+        <TextView
+            android:id="@+id/converter_currency_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:textColor="@color/converterTextColor"
+            android:textSize="52sp"
+            tools:text="EUR" />
+
+        <EditText
+            android:id="@+id/converter_currency_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:background="@null"
+            android:textColor="@color/converterTextColor"
+            android:textSize="52sp"
+            tools:text="-10" />
+
+    </RelativeLayout>
+</merge>

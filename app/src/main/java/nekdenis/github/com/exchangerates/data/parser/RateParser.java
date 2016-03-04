@@ -82,9 +82,9 @@ public class RateParser implements Parser<ExchangeRates> {
     private void readRate(XmlPullParser parser, ExchangeRates rates) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, "Cube");
         String currency = null;
-        Float rate = null;
+        Double rate = null;
         currency = parser.getAttributeValue(null, "currency");
-        rate = Float.valueOf(parser.getAttributeValue(null, "rate"));
+        rate = Double.valueOf(parser.getAttributeValue(null, "rate"));
         if (currency != null) {
             rates.addRate(currency, rate);
         }
