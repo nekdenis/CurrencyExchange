@@ -9,6 +9,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import me.relex.circleindicator.CircleIndicator;
 import nekdenis.github.com.exchangerates.R;
 import nekdenis.github.com.exchangerates.data.CurrencyObj;
 import nekdenis.github.com.exchangerates.ui.exhange.adapter.ExchangeConvertedViewPagerAdapter;
@@ -21,6 +22,10 @@ public class ExchangeActivity extends AppCompatActivity implements ExchangeViewI
     protected ViewPager originalCurrenciesViewPager;
     @Bind(R.id.exchange_converted_viewpager)
     protected ViewPager convertedCurrenciesViewPager;
+    @Bind(R.id.exchange_original_indicator)
+    protected CircleIndicator originalCircleIndicator;
+    @Bind(R.id.exchange_converted_indicator)
+    protected CircleIndicator convertedCircleIndicator;
 
     private ExchangePresenter presenter;
     private ExchangeOriginalViewPagerAdapter originalPagerAdapter;
@@ -44,6 +49,7 @@ public class ExchangeActivity extends AppCompatActivity implements ExchangeViewI
     private void initViewPagers() {
         originalPagerAdapter = new ExchangeOriginalViewPagerAdapter(this, currencyValueChangeListener);
         originalCurrenciesViewPager.setAdapter(originalPagerAdapter);
+        originalCircleIndicator.setViewPager(originalCurrenciesViewPager);
         originalCurrenciesViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -53,6 +59,7 @@ public class ExchangeActivity extends AppCompatActivity implements ExchangeViewI
         });
         convertedPagerAdapter = new ExchangeConvertedViewPagerAdapter(this);
         convertedCurrenciesViewPager.setAdapter(convertedPagerAdapter);
+        convertedCircleIndicator.setViewPager(convertedCurrenciesViewPager);
         convertedCurrenciesViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {

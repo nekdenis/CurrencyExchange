@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -9,9 +10,24 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/converter_view_height" />
 
+    <me.relex.circleindicator.CircleIndicator
+        android:id="@+id/exchange_original_indicator"
+        style="@style/IndicatorStyle"
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:layout_alignBottom="@id/exchange_original_viewpager" />
+
     <android.support.v4.view.ViewPager
         android:id="@+id/exchange_converted_viewpager"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/converter_view_height" />
+        android:layout_height="@dimen/converter_view_height"
+        android:layout_below="@id/exchange_original_viewpager" />
 
-</LinearLayout>
+    <me.relex.circleindicator.CircleIndicator
+        android:id="@+id/exchange_converted_indicator"
+        style="@style/IndicatorStyle"
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:layout_alignBottom="@id/exchange_converted_viewpager" />
+
+</RelativeLayout>

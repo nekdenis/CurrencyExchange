@@ -7,4 +7,7 @@
 
     <!-- Converter colors -->
     <color name="converterTextColor">@android:color/black</color>
+
+    <color name="circleIndicatorSelected">#303F9F</color>
+    <color name="circleIndicatorUnselected">#ab303f9f</color>
 </resources>

@@ -6,7 +6,13 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:textColorPrimary">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@color/colorTextPrimary</item>
+    </style>
+
+    <style name="IndicatorStyle">
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="ci_drawable">@drawable/indicator_circle_selected</item>
+        <item name="ci_drawable_unselected">@drawable/indicator_circle_unselected</item>
     </style>
 
 </resources>

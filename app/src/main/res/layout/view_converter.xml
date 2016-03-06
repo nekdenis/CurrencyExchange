@@ -10,15 +10,17 @@
         android:layout_centerVertical="true"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        tools:background="#80a0ea">
+        tools:background="#80a0ea"
+        android:layout_marginBottom="16dp">
 
         <TextView
             android:id="@+id/converter_currency_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentStart="true"
             android:textColor="@color/converterTextColor"
-            android:textSize="52sp"
+            android:textSize="40sp"
             tools:text="EUR" />
 
         <EditText
@@ -27,8 +29,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:background="@null"
+            android:layout_alignParentBottom="true"
             android:textColor="@color/converterTextColor"
-            android:textSize="52sp"
+            android:textSize="40sp"
             tools:text="-10" />
 
     </RelativeLayout>
