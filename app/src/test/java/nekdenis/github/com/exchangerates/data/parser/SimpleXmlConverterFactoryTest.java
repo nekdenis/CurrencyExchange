@@ -46,7 +46,7 @@ public class SimpleXmlConverterFactoryTest {
 
     @Test
     public void testExchangeRatesResponseParser() throws IOException {
-        server.enqueue(new MockResponse().setBody(getStringFromAssets("assets/response/rate_test_data.xml")));
+        server.enqueue(new MockResponse().setBody(getStringFromAssets("rate_test_data.xml")));
 
         Call<ExchangeRatesResponse> call = service.get();
         Response<ExchangeRatesResponse> response = call.execute();
