@@ -9,13 +9,13 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
+import nekdenis.github.com.exchangerates.data.CurrencyObj;
 import nekdenis.github.com.exchangerates.ui.view.ConverterView;
 
 public abstract class ExchangeViewPagerAdapterBase extends PagerAdapter {
 
-    public static final String CURRENCY_UNKNOWN_VALUE = "-";
     protected Context context;
-    protected List<String> currencies;
+    protected List<CurrencyObj> currencies;
     protected boolean isEditableValues;
     protected ViewGroup container;
 
@@ -25,27 +25,33 @@ public abstract class ExchangeViewPagerAdapterBase extends PagerAdapter {
         currencies = new ArrayList<>();
     }
 
-    public void setData(List<String> newCurrencies) {
+    public void setData(List<CurrencyObj> newCurrencies) {
         currencies.clear();
         currencies.addAll(newCurrencies);
         notifyDataSetChanged();
     }
 
-    public String getItemAt(int index) {
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
+    }
+
+    public CurrencyObj getItemAt(int index) {
         return currencies.get(index);
     }
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         this.container = container;
-        String currencyName = currencies.get(position);
-        String exchangeRateValue = getCurrencyValue(currencyName);
-        ConverterView view = getConverterView(currencyName, exchangeRateValue);
+        ConverterView view = createConverterView(position);
         container.addView(view);
         return view;
     }
 
-    abstract String getCurrencyValue(String currencyName);
+    @NonNull
+    protected ConverterView createConverterView(int position) {
+        CurrencyObj currency = currencies.get(position);
+        return createConverterView(currency);
+    }
 
     @Override
     public int getCount() {
@@ -63,11 +69,14 @@ public abstract class ExchangeViewPagerAdapterBase extends PagerAdapter {
     }
 
     @NonNull
-    ConverterView getConverterView(String currency, String exchangeRateValue) {
+    ConverterView createConverterView(CurrencyObj currency) {
         ConverterView view = new ConverterView(context);
-        view.setCurrencyName(currency);
         view.setCurrencyEditEnabled(isEditableValues);
-        view.setCurrencyValue(exchangeRateValue);
+        view.setCurrencyObj(currency);
         return view;
+    }
+
+    public List<CurrencyObj> getData() {
+        return currencies;
     }
 }

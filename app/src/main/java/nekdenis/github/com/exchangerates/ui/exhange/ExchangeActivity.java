@@ -10,9 +10,10 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import nekdenis.github.com.exchangerates.R;
-import nekdenis.github.com.exchangerates.data.ExchangeRates;
+import nekdenis.github.com.exchangerates.data.CurrencyObj;
 import nekdenis.github.com.exchangerates.ui.exhange.adapter.ExchangeConvertedViewPagerAdapter;
 import nekdenis.github.com.exchangerates.ui.exhange.adapter.ExchangeOriginalViewPagerAdapter;
+import nekdenis.github.com.exchangerates.ui.view.ConverterView;
 
 public class ExchangeActivity extends AppCompatActivity implements ExchangeViewInterface {
 
@@ -35,8 +36,15 @@ public class ExchangeActivity extends AppCompatActivity implements ExchangeViewI
     }
 
     private void initViewPagers() {
-        originalPagerAdapter = new ExchangeOriginalViewPagerAdapter(this);
+        originalPagerAdapter = new ExchangeOriginalViewPagerAdapter(this, currencyValueChangeListener);
         originalCurrenciesViewPager.setAdapter(originalPagerAdapter);
+        originalCurrenciesViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                CurrencyObj selectedCurrency = originalPagerAdapter.getItemAt(position);
+                presenter.onSelectedOriginalCurrencyChanged(selectedCurrency);
+            }
+        });
         convertedPagerAdapter = new ExchangeConvertedViewPagerAdapter(this);
         convertedCurrenciesViewPager.setAdapter(convertedPagerAdapter);
     }
@@ -54,29 +62,13 @@ public class ExchangeActivity extends AppCompatActivity implements ExchangeViewI
     }
 
     @Override
-    public void updateCurrencyRates(ExchangeRates rates) {
-        String selectedItem = getSelectedCurrency();
-        convertedPagerAdapter.onRateChanged(rates, selectedItem, 10f);
-    }
-
-    @Override
-    public void setSelectedOriginalCurrency(String selectedOriginalCurrency) {
-
-    }
-
-    @Override
-    public void updateOriginalCurrencies(List<String> currencies) {
+    public void updateOriginalCurrencies(List<CurrencyObj> currencies) {
         originalPagerAdapter.setData(currencies);
     }
 
     @Override
-    public void updateConvertedCurrencies(List<String> currencies) {
+    public void updateConvertedCurrencies(List<CurrencyObj> currencies) {
         convertedPagerAdapter.setData(currencies);
-    }
-
-    @Override
-    public void setSelectedConvertedCurrency(String selectedConvertedCurrency) {
-
     }
 
     @Override
@@ -84,7 +76,10 @@ public class ExchangeActivity extends AppCompatActivity implements ExchangeViewI
         Snackbar.make(convertedCurrenciesViewPager, message, Snackbar.LENGTH_SHORT).show();
     }
 
-    private String getSelectedCurrency() {
-        return originalPagerAdapter.getItemAt(originalCurrenciesViewPager.getCurrentItem());
-    }
+    private ConverterView.CurrencyValueChangeListener currencyValueChangeListener = new ConverterView.CurrencyValueChangeListener() {
+        @Override
+        public void onValueChanged(CurrencyObj currencyObj) {
+            presenter.onRateChanged(currencyObj);
+        }
+    };
 }

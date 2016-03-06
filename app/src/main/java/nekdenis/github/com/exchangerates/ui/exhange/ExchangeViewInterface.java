@@ -2,19 +2,13 @@ package nekdenis.github.com.exchangerates.ui.exhange;
 
 import java.util.List;
 
-import nekdenis.github.com.exchangerates.data.ExchangeRates;
+import nekdenis.github.com.exchangerates.data.CurrencyObj;
 
 public interface ExchangeViewInterface  {
 
-    void updateCurrencyRates(ExchangeRates rates);
+    void updateOriginalCurrencies(List<CurrencyObj> currencies);
 
-    void setSelectedOriginalCurrency(String selectedOriginalCurrency);
-
-    void updateOriginalCurrencies(List<String> currencies);
-
-    void updateConvertedCurrencies(List<String> currencies);
-
-    void setSelectedConvertedCurrency(String selectedConvertedCurrency);
+    void updateConvertedCurrencies(List<CurrencyObj> currencies);
 
     void onRatesUpdatingError(String message);
 }
