@@ -32,7 +32,13 @@ public class ExchangeActivity extends AppCompatActivity implements ExchangeViewI
         setContentView(R.layout.activity_exchange);
         ButterKnife.bind(this);
         presenter = new ExchangePresenter();
+
         initViewPagers();
+
+        presenter.attachViewInterface(this);
+        if (savedInstanceState != null) {
+            presenter.onRestoreInstanceState(savedInstanceState);
+        }
     }
 
     private void initViewPagers() {
@@ -47,17 +53,24 @@ public class ExchangeActivity extends AppCompatActivity implements ExchangeViewI
         });
         convertedPagerAdapter = new ExchangeConvertedViewPagerAdapter(this);
         convertedCurrenciesViewPager.setAdapter(convertedPagerAdapter);
+        convertedCurrenciesViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                CurrencyObj selectedCurrency = convertedPagerAdapter.getItemAt(position);
+                presenter.onSelectedConvertedCurrencyChanged(selectedCurrency);
+            }
+        });
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        presenter.attachViewInterface(this);
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        presenter.onSaveInstanceState(outState);
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         presenter.detachViewInterface();
     }
 
@@ -74,6 +87,16 @@ public class ExchangeActivity extends AppCompatActivity implements ExchangeViewI
     @Override
     public void onRatesUpdatingError(String message) {
         Snackbar.make(convertedCurrenciesViewPager, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void notifyRatesUpdated() {
+        Snackbar.make(convertedCurrenciesViewPager, R.string.exchange_rates_updated, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void selectCurrencies(CurrencyObj originalSelectedCurrency, CurrencyObj convertedSelectedCurrency) {
+
     }
 
     private ConverterView.CurrencyValueChangeListener currencyValueChangeListener = new ConverterView.CurrencyValueChangeListener() {

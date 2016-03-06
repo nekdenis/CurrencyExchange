@@ -76,6 +76,16 @@ public class ExchangePresenterTest {
             public void onRatesUpdatingError(String message) {
 
             }
+
+            @Override
+            public void notifyRatesUpdated() {
+
+            }
+
+            @Override
+            public void selectCurrencies(CurrencyObj originalSelectedCurrency, CurrencyObj convertedSelectedCurrency) {
+
+            }
         };
         presenter.detachViewInterface();
         Assert.assertNull(presenter.viewInterface);
@@ -128,4 +138,5 @@ public class ExchangePresenterTest {
         rates.addRate("GBP", 0.7d);
         return rates;
     }
+
 }

@@ -11,4 +11,8 @@ public interface ExchangeViewInterface  {
     void updateConvertedCurrencies(List<CurrencyObj> currencies);
 
     void onRatesUpdatingError(String message);
+
+    void notifyRatesUpdated();
+
+    void selectCurrencies(CurrencyObj originalSelectedCurrency, CurrencyObj convertedSelectedCurrency);
 }

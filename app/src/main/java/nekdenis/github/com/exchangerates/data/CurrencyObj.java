@@ -1,5 +1,6 @@
 package nekdenis.github.com.exchangerates.data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 import nekdenis.github.com.exchangerates.util.money.CurrencyFormat;
@@ -8,7 +9,7 @@ import nekdenis.github.com.exchangerates.util.money.CurrencyFormat;
 /**
  * Object that represents currency and amount.
  */
-public class CurrencyObj {
+public class CurrencyObj implements Serializable {
 
     private String name;
 

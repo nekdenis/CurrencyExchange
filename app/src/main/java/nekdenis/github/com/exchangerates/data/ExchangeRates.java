@@ -1,6 +1,7 @@
 package nekdenis.github.com.exchangerates.data;
 import android.support.annotation.StringDef;
 
+import java.io.Serializable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import java.util.Map;
 /**
  * Object that represents exchange rates that convert using EUR exchange rate
  */
-public class ExchangeRates {
+public class ExchangeRates implements Serializable {
 
     public static final String RATE_USD = "USD";
     public static final String RATE_EUR = "EUR";

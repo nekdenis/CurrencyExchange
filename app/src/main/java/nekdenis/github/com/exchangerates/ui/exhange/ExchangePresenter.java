@@ -1,5 +1,6 @@
 package nekdenis.github.com.exchangerates.ui.exhange;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -7,13 +8,16 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import nekdenis.github.com.exchangerates.BuildConfig;
 import nekdenis.github.com.exchangerates.api.Api;
 import nekdenis.github.com.exchangerates.data.CurrencyObj;
 import nekdenis.github.com.exchangerates.data.ExchangeRates;
 import nekdenis.github.com.exchangerates.data.ExchangeRatesConverter;
 import nekdenis.github.com.exchangerates.data.response.exchangerates.ExchangeRatesResponse;
 import nekdenis.github.com.exchangerates.di.Injector;
+import nekdenis.github.com.exchangerates.util.Constants;
 import nekdenis.github.com.exchangerates.util.money.CurrencyConverterException;
 import nekdenis.github.com.exchangerates.util.money.CurrencyCoverter;
 import rx.Observable;
@@ -32,6 +36,10 @@ import rx.schedulers.Schedulers;
 public class ExchangePresenter {
 
     public static final BigDecimal CURRENCY_UNKNOWN_VALUE = new BigDecimal("0");
+    private static final String STATE_LAST_SELECTED_ORIGINAL_CURRENCY = "STATE_LAST_SELECTED_ORIGINAL_CURRENCY";
+    private static final String STATE_LAST_SELECTED_CONVERTED_CURRENCY = "STATE_LAST_SELECTED_CONVERTED_CURRENCY";
+    private static final String STATE_CURRENCIES = "STATE_CURRENCIES";
+    private static final String STATE_RATES = "STATE_RATES";
 
     ExchangeViewInterface viewInterface;
     CurrencyObj lastSelectedOriginalCurrency;
@@ -54,6 +62,10 @@ public class ExchangePresenter {
     private void onRatesLoaded(ExchangeRates rates) {
         this.exchangeRates = rates;
         updateRates();
+        if (viewInterface != null && BuildConfig.DEBUG) {
+            //only for debug
+            viewInterface.notifyRatesUpdated();
+        }
     }
 
     public void attachViewInterface(ExchangeViewInterface viewInterface) {
@@ -73,6 +85,12 @@ public class ExchangePresenter {
     private void doGetRatesRequest() {
         exchangeRateSubscription = service.getLatestRates()
                 .subscribeOn(Schedulers.io())
+                .repeatWhen(new Func1<Observable<? extends Void>, Observable<?>>() {
+                    @Override
+                    public Observable<?> call(Observable<? extends Void> observable) {
+                        return observable.delay(Constants.RATES_REPEAT_INTERVAL, TimeUnit.SECONDS);
+                    }
+                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(new Func1<ExchangeRatesResponse, Observable<ExchangeRates>>() {
                     @Override
@@ -150,6 +168,10 @@ public class ExchangePresenter {
         onRateChanged(selectedOriginalCurrency);
     }
 
+    public void onSelectedConvertedCurrencyChanged(CurrencyObj selectedCurrency) {
+        lastSelectedConvertedCurrency = selectedCurrency;
+    }
+
     void updateRates() {
         onRateChanged(getSelectedOriginalCurrency());
     }
@@ -162,7 +184,24 @@ public class ExchangePresenter {
         }
     }
 
-   void updateAllCurrencies(CurrencyObj selectedCurrency, List<CurrencyObj> availableToConvertCurrencies) {
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(STATE_LAST_SELECTED_ORIGINAL_CURRENCY, lastSelectedOriginalCurrency);
+        outState.putSerializable(STATE_LAST_SELECTED_CONVERTED_CURRENCY, lastSelectedConvertedCurrency);
+        outState.putSerializable(STATE_CURRENCIES, new ArrayList<>(currencies));
+        outState.putSerializable(STATE_RATES, exchangeRates);
+    }
+
+    public void onRestoreInstanceState(Bundle savedState) {
+        lastSelectedOriginalCurrency = (CurrencyObj) savedState.getSerializable(STATE_LAST_SELECTED_ORIGINAL_CURRENCY);
+        lastSelectedConvertedCurrency = (CurrencyObj) savedState.getSerializable(STATE_LAST_SELECTED_CONVERTED_CURRENCY);
+        onCurrenciesLoaded((List<CurrencyObj>) savedState.getSerializable(STATE_CURRENCIES));
+        if (viewInterface != null) {
+            viewInterface.selectCurrencies(lastSelectedOriginalCurrency, lastSelectedOriginalCurrency);
+        }
+        onRatesLoaded((ExchangeRates) savedState.getSerializable(STATE_RATES));
+    }
+
+    void updateAllCurrencies(CurrencyObj selectedCurrency, List<CurrencyObj> availableToConvertCurrencies) {
         for (int i = 0; i < availableToConvertCurrencies.size(); i++) {
             updateExchangeRateValue(availableToConvertCurrencies.get(i), selectedCurrency, exchangeRates);
         }
