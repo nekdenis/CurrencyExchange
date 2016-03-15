@@ -61,7 +61,7 @@ public class ExchangePresenterTest {
     @Test
     public void testDetachViewInterface() throws Exception {
         ExchangePresenter presenter = new ExchangePresenter();
-        presenter.viewInterface = new ExchangeViewInterface() {
+        presenter.viewInterface = new ExchangeInterfaces.ExchangeViewInterface() {
             @Override
             public void updateOriginalCurrencies(List<CurrencyObj> currencies) {
 

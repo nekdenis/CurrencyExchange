@@ -35,7 +35,7 @@ public class ExchangeRatesConverterTest {
         ExchangeRates convertedRates = ExchangeRatesConverter.convert(ratesResponse);
         Assert.assertEquals(1285876800000l, convertedRates.getTimestamp());
         Assert.assertEquals(2, convertedRates.getExchangeRatesMap().size());
-        Assert.assertEquals(1.2d, convertedRates.getExchangeRate(ExchangeRates.RATE_USD),.01);
+        Assert.assertEquals(1.3d, convertedRates.getExchangeRate(ExchangeRates.RATE_USD),.01);
         Assert.assertEquals(0.8d, convertedRates.getExchangeRate(ExchangeRates.RATE_GBP),.01);
 
     }

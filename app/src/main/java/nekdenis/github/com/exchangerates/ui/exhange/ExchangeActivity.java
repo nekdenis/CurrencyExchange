@@ -16,7 +16,7 @@ import nekdenis.github.com.exchangerates.ui.exhange.adapter.ExchangeConvertedVie
 import nekdenis.github.com.exchangerates.ui.exhange.adapter.ExchangeOriginalViewPagerAdapter;
 import nekdenis.github.com.exchangerates.ui.view.ConverterView;
 
-public class ExchangeActivity extends AppCompatActivity implements ExchangeViewInterface {
+public class ExchangeActivity extends AppCompatActivity implements ExchangeInterfaces.ExchangeViewInterface {
 
     @Bind(R.id.exchange_original_viewpager)
     protected ViewPager originalCurrenciesViewPager;
@@ -27,7 +27,7 @@ public class ExchangeActivity extends AppCompatActivity implements ExchangeViewI
     @Bind(R.id.exchange_converted_indicator)
     protected CircleIndicator convertedCircleIndicator;
 
-    private ExchangePresenter presenter;
+    private ExchangeInterfaces.ExchangePresenterInterface presenter;
     private ExchangeOriginalViewPagerAdapter originalPagerAdapter;
     private ExchangeConvertedViewPagerAdapter convertedPagerAdapter;
 
@@ -36,7 +36,7 @@ public class ExchangeActivity extends AppCompatActivity implements ExchangeViewI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exchange);
         ButterKnife.bind(this);
-        presenter = new ExchangePresenter();
+        presenter = ExchangeMVPFactory.initPresenter();
 
         initViewPagers();
 

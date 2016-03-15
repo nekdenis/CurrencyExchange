@@ -2,38 +2,23 @@ package nekdenis.github.com.exchangerates.ui.exhange;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import nekdenis.github.com.exchangerates.BuildConfig;
-import nekdenis.github.com.exchangerates.api.Api;
 import nekdenis.github.com.exchangerates.data.CurrencyObj;
 import nekdenis.github.com.exchangerates.data.ExchangeRates;
-import nekdenis.github.com.exchangerates.data.ExchangeRatesConverter;
-import nekdenis.github.com.exchangerates.data.response.exchangerates.ExchangeRatesResponse;
-import nekdenis.github.com.exchangerates.di.Injector;
-import nekdenis.github.com.exchangerates.util.Constants;
 import nekdenis.github.com.exchangerates.util.money.CurrencyConverterException;
 import nekdenis.github.com.exchangerates.util.money.CurrencyCoverter;
-import rx.Observable;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.exceptions.Exceptions;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 
 
 /**
- * Presenter for {@link ExchangeViewInterface} that handles all business logic
+ * Presenter for {@link ExchangeInterfaces.ExchangeViewInterface} that handles all business logic
  * related to load, show and convert exchange rates
  */
-public class ExchangePresenter {
+public class ExchangePresenter implements ExchangeInterfaces.ExchangePresenterInterface, ExchangeInterfaces.ExchangePresenterCallback {
 
     public static final BigDecimal CURRENCY_UNKNOWN_VALUE = new BigDecimal("0");
     private static final String STATE_LAST_SELECTED_ORIGINAL_CURRENCY = "STATE_LAST_SELECTED_ORIGINAL_CURRENCY";
@@ -41,37 +26,38 @@ public class ExchangePresenter {
     private static final String STATE_CURRENCIES = "STATE_CURRENCIES";
     private static final String STATE_RATES = "STATE_RATES";
 
-    ExchangeViewInterface viewInterface;
-    CurrencyObj lastSelectedOriginalCurrency;
-    CurrencyObj lastSelectedConvertedCurrency;
-    List<CurrencyObj> currencies;
-    ExchangeRates exchangeRates;
-    Api service;
+    protected ExchangeInterfaces.ExchangeViewInterface viewInterface;
+    protected CurrencyObj lastSelectedOriginalCurrency;
+    protected CurrencyObj lastSelectedConvertedCurrency;
+    protected List<CurrencyObj> currencies;
+    protected ExchangeRates exchangeRates;
+    protected ExchangeInterfaces.ExchangeModelInterface exchangeModel;
 
-    private Subscription exchangeRateSubscription;
 
     public ExchangePresenter() {
         currencies = new ArrayList<>();
-        service = Injector.provideService();
+        exchangeModel = ExchangeMVPFactory.initModel(this);
     }
 
+    @Override
     public void loadRates() {
-        doGetRatesRequest();
+        exchangeModel.doGetRatesRequest();
     }
 
-    private void onRatesLoaded(ExchangeRates rates) {
+    @Override
+    public void attachViewInterface(ExchangeInterfaces.ExchangeViewInterface viewInterface) {
+        this.viewInterface = viewInterface;
+        loadAvailableCurrencies();
+        loadRates();
+    }
+
+    public void onRatesLoaded(ExchangeRates rates) {
         this.exchangeRates = rates;
         updateRates();
         if (viewInterface != null && BuildConfig.DEBUG) {
             //only for debug
             viewInterface.notifyRatesUpdated();
         }
-    }
-
-    public void attachViewInterface(ExchangeViewInterface viewInterface) {
-        this.viewInterface = viewInterface;
-        loadAvailableCurrencies();
-        loadRates();
     }
 
     private void loadAvailableCurrencies() {
@@ -82,54 +68,15 @@ public class ExchangePresenter {
         onCurrenciesLoaded(currencies);
     }
 
-    private void doGetRatesRequest() {
-        exchangeRateSubscription = service.getLatestRates()
-                .subscribeOn(Schedulers.io())
-                .repeatWhen(new Func1<Observable<? extends Void>, Observable<?>>() {
-                    @Override
-                    public Observable<?> call(Observable<? extends Void> observable) {
-                        return observable.delay(Constants.RATES_REPEAT_INTERVAL, TimeUnit.SECONDS);
-                    }
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(new Func1<ExchangeRatesResponse, Observable<ExchangeRates>>() {
-                    @Override
-                    public Observable<ExchangeRates> call(ExchangeRatesResponse exchangeRatesResponse) {
-                        try {
-                            return Observable.just(ExchangeRatesConverter.convert(exchangeRatesResponse));
-                        } catch (ParseException e) {
-                            throw Exceptions.propagate(e);
-                        }
-                    }
-                })
-                .subscribe(new Subscriber<ExchangeRates>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.d("", "");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        onRatesLoadError(e);
-                    }
-
-                    @Override
-                    public void onNext(ExchangeRates response) {
-                        onRatesLoaded(response);
-                    }
-                });
-    }
-
-    private void onRatesLoadError(Throwable e) {
+    public void onRatesLoadError(Throwable e) {
         if (viewInterface != null) {
             viewInterface.onRatesUpdatingError(e.getMessage());
         }
     }
 
+    @Override
     public void detachViewInterface() {
-        if (exchangeRateSubscription != null) {
-            exchangeRateSubscription.unsubscribe();
-        }
+        exchangeModel.detach();
         this.viewInterface = null;
     }
 
@@ -163,11 +110,13 @@ public class ExchangePresenter {
         return availableToConvertCurrencies;
     }
 
+    @Override
     public void onSelectedOriginalCurrencyChanged(CurrencyObj selectedOriginalCurrency) {
         this.lastSelectedOriginalCurrency = selectedOriginalCurrency;
         onRateChanged(selectedOriginalCurrency);
     }
 
+    @Override
     public void onSelectedConvertedCurrencyChanged(CurrencyObj selectedCurrency) {
         lastSelectedConvertedCurrency = selectedCurrency;
     }
@@ -176,6 +125,7 @@ public class ExchangePresenter {
         onRateChanged(getSelectedOriginalCurrency());
     }
 
+    @Override
     public void onRateChanged(CurrencyObj selectedCurrency) {
         List<CurrencyObj> availableToConvertCurrencies = getAvailableToConvertCurrencies(currencies);
         updateAllCurrencies(selectedCurrency, availableToConvertCurrencies);
@@ -184,6 +134,7 @@ public class ExchangePresenter {
         }
     }
 
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putSerializable(STATE_LAST_SELECTED_ORIGINAL_CURRENCY, lastSelectedOriginalCurrency);
         outState.putSerializable(STATE_LAST_SELECTED_CONVERTED_CURRENCY, lastSelectedConvertedCurrency);
@@ -191,6 +142,7 @@ public class ExchangePresenter {
         outState.putSerializable(STATE_RATES, exchangeRates);
     }
 
+    @Override
     public void onRestoreInstanceState(Bundle savedState) {
         lastSelectedOriginalCurrency = (CurrencyObj) savedState.getSerializable(STATE_LAST_SELECTED_ORIGINAL_CURRENCY);
         lastSelectedConvertedCurrency = (CurrencyObj) savedState.getSerializable(STATE_LAST_SELECTED_CONVERTED_CURRENCY);

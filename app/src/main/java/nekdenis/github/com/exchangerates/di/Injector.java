@@ -11,6 +11,9 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Just a simple Injector that should be replaced with dagger2 in production
@@ -52,5 +55,13 @@ public class Injector {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         return interceptor;
+    }
+
+    public static Scheduler provideIoScheduler() {
+        return Schedulers.io();
+    }
+
+    public static Scheduler provideUIScheduler() {
+        return AndroidSchedulers.mainThread();
     }
 }
