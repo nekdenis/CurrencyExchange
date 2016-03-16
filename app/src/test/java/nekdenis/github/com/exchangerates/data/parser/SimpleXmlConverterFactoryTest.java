@@ -35,13 +35,18 @@ public class SimpleXmlConverterFactoryTest {
 
     @Before
     public void setUp() {
+        Service service = getMockService();
+        this.service = service;
+    }
+
+    private Service getMockService() {
         Format format = new Format(0, null, new HyphenStyle(), Verbosity.HIGH);
         Persister persister = new Persister(format);
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(server.url("/"))
                 .addConverterFactory(SimpleXmlConverterFactory.create(persister))
                 .build();
-        service = retrofit.create(Service.class);
+        return retrofit.create(Service.class);
     }
 
     @Test

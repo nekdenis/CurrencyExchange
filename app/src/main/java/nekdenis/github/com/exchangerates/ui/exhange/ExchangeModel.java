@@ -39,7 +39,27 @@ public class ExchangeModel implements ExchangeInterfaces.ExchangeModelInterface 
 
     @Override
     public void doGetRatesRequest() {
-        exchangeRateSubscription = service.getLatestRates()
+        exchangeRateSubscription = getExchangeRatesObservable()
+                .subscribe(new Subscriber<ExchangeRates>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d("", "");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        presenterCallback.onRatesLoadError(e);
+                    }
+
+                    @Override
+                    public void onNext(ExchangeRates response) {
+                        presenterCallback.onRatesLoaded(response);
+                    }
+                });
+    }
+
+    Observable<ExchangeRates> getExchangeRatesObservable() {
+        return service.getLatestRates()
                 .subscribeOn(Injector.provideIoScheduler())
                 .repeatWhen(new Func1<Observable<? extends Void>, Observable<?>>() {
                     @Override
@@ -56,22 +76,6 @@ public class ExchangeModel implements ExchangeInterfaces.ExchangeModelInterface 
                         } catch (ParseException e) {
                             throw Exceptions.propagate(e);
                         }
-                    }
-                })
-                .subscribe(new Subscriber<ExchangeRates>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.d("", "");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        presenterCallback.onRatesLoadError(e);
-                    }
-
-                    @Override
-                    public void onNext(ExchangeRates response) {
-                        presenterCallback.onRatesLoaded(response);
                     }
                 });
     }
